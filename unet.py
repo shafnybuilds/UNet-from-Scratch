@@ -38,6 +38,25 @@ class UNet(nn.Module):
         self.up_transpose_1 = nn.ConvTranspose2d(
             in_channels=1024, out_channels=512, kernel_size=2, stride=2
         )
+        self.up_conv_1 = double_conv(1024, 512)
+
+        self.up_transpose_2 = nn.ConvTranspose2d(
+            in_channels=512, out_channels=256, kernel_size=2, stride=2
+        )
+        self.up_conv_2 = double_conv(512, 256)
+
+        self.up_transpose_3 = nn.ConvTranspose2d(
+            in_channels=256, out_channels=128, kernel_size=2, stride=2
+        )
+        self.up_conv_3 = double_conv(256, 128)
+
+        self.up_transpose_4 = nn.ConvTranspose2d(
+            in_channels=128, out_channels=64, kernel_size=2, stride=2
+        )
+        self.up_conv_4 = double_conv(128, 64)
+
+        # output layer
+        self.out = nn.Conv2d(in_channels=64, out_channels=2, kernel_size=1)
 
     def forward(self, img):
         # encoder
@@ -55,12 +74,26 @@ class UNet(nn.Module):
         x9 = self.down_conv_5(x8)
 
         # decode
-        X = self.up_transpose_1(x9)
-        y = crop_image(x7, X)
-        print(X.size())
-        # Now I have to concatenate X with x7
-        print(x7.size())
-        print(y.size())
+        x = self.up_transpose_1(x9)
+        y = crop_image(x7, x)
+        x = self.up_conv_1(torch.cat([x, y], 1))
+
+        x = self.up_transpose_2(x)
+        y = crop_image(x5, x)
+        x = self.up_conv_2(torch.cat([x, y], 1))
+
+        x = self.up_transpose_3(x)
+        y = crop_image(x3, x)
+        x = self.up_conv_3(torch.cat([x, y], 1))
+
+        x = self.up_transpose_4(x)
+        y = crop_image(x1, x)
+        x = self.up_conv_4(torch.cat([x, y], 1))
+
+        # output channel
+        x = self.out(x)
+        print(x.size())
+        return x
 
 
 if __name__ == "__main__":
