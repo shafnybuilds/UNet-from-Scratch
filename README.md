@@ -1,4 +1,4 @@
-# U-Net from Scratch
+# U-Net from Scratch - Reimplementing the U-Net Paper
 
 A PyTorch implementation of the U-Net architecture for biomedical image segmentation, built from scratch following the original paper "U-Net: Convolutional Networks for Biomedical Image Segmentation".
 
